@@ -1,0 +1,5 @@
+package jojo;
+
+public enum GameItem {
+    CHANEL, BOMBUP, POWERUP, SPEEDUP, REMOTECONTROL, DOOR, WALL, ICRONWALL;
+}
