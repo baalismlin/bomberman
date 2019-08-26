@@ -14,20 +14,16 @@ public class CustomKeyAdapter extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
         case KeyEvent.VK_LEFT:
-            player.setDx(-1);
-            player.startMove(Direction.LEFT);
+            player.startMove(Direction.LEFT, -1, 0);
             break;
         case KeyEvent.VK_RIGHT:
-            player.setDx(1);
-            player.startMove(Direction.RIGHT);
+            player.startMove(Direction.RIGHT, 1, 0);
             break;
         case KeyEvent.VK_UP:
-            player.setDy(-1);
-            player.startMove(Direction.UP);
+            player.startMove(Direction.UP, 0, -1);
             break;
         case KeyEvent.VK_DOWN:
-            player.setDy(1);
-            player.startMove(Direction.DOWN);
+            player.startMove(Direction.DOWN, 0, 1);
             break;
         }
     }
@@ -39,8 +35,6 @@ public class CustomKeyAdapter extends KeyAdapter {
         case KeyEvent.VK_RIGHT:
         case KeyEvent.VK_UP:
         case KeyEvent.VK_DOWN:
-            player.setDx(0);
-            player.setDy(0);
             break;
         }
     }

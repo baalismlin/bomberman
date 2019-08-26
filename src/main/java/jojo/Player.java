@@ -1,18 +1,18 @@
 package jojo;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
-import javax.swing.JPanel;
 import jojo.tools.PathHelper;
 
 public class Player {
-    private Image bomber;
+    private Image source;
 
     private int speed;
-    private boolean moving;
     private Direction direction;
     private int frame;
     private int width;
@@ -20,16 +20,64 @@ public class Player {
 
     private int x;
     private int y;
-    private int dx;
-    private int dy;
+
+    private List<Image> leftImages;
+    private List<Image> rightImages;
+    private List<Image> upImages;
+    private List<Image> downImages;
+    private List<Image> dieImages;
 
     public Player() {
-        bomber = new ImageIcon(PathHelper.resourceURL("/images/play.png")).getImage();
-        width = bomber.getWidth(null) / 4;
-        height = bomber.getHeight(null) / 6;
+        source = new ImageIcon(PathHelper.resourceURL("/images/play.png")).getImage();
+
+        width = source.getWidth(null) / 4;
+        height = source.getHeight(null) / 6;
         speed = 1;
-        moving = false;
         direction = Direction.DOWN;
+
+        leftImages = new ArrayList<>(4);
+        rightImages = new ArrayList<>(4);
+        upImages = new ArrayList<>(4);
+        downImages = new ArrayList<>(4);
+        dieImages = new ArrayList<>(8);
+
+        for (int col = 0; col < 4; col++) {
+            // line 1 left moving
+            leftImages.add(getImage(0, col));
+
+            // line 2 right moving
+            rightImages.add(getImage(1, col));
+
+            // line 3 up moving
+            upImages.add(getImage(2, col));
+
+            // line 4 down moving
+            downImages.add(getImage(3, col));
+
+            // line 5
+            dieImages.add(getImage(4, col));
+
+        }
+
+        for (int col = 0; col < 4; col++) {
+            dieImages.add(getImage(4, col));
+        }
+
+    }
+
+    private Image getImage(int row, int col) {
+        Image image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        var g2d = (Graphics2D) image.getGraphics();
+        g2d.drawImage(source, 0, 0, width, height, col * width, row * height, ++col * width, ++row * height, null);
+        return image;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public int getX() {
@@ -40,14 +88,6 @@ public class Player {
         return y;
     }
 
-    public void setDx(int dx) {
-        this.dx = dx;
-    }
-
-    public void setDy(int dy) {
-        this.dy = dy;
-    }
-
     public int getWidth() {
         return width;
     }
@@ -56,74 +96,36 @@ public class Player {
         return height;
     }
 
-    public void startMove(Direction direction) {
+    public void startMove(Direction direction, int hDirection, int vDirection) {
+        x += hDirection * speed;
+        y += vDirection * speed;
         if (direction != this.direction) {
             this.direction = direction;
             frame = 0;
         } else {
-            frame = frame == 4 ? 0 : frame + 1;
+            frame = frame == 3 ? 0 : frame + 1;
         }
 
     }
 
-    public void stopMove() {
-        dx = 0;
-        dy = 0;
-    }
-
-    private void goLeft(Graphics g) {
-        draw(g, 0);
-        // g.drawImage(bomber, x, y, x + width, y + height, width * frame, 0, width *
-        // frame + width, height, null);
-    }
-
-    private void goRight(Graphics g) {
-        draw(g, 1);
-        // g.drawImage(bomber, x, y, x + width, y + height, width * frame, height, width
-        // * frame + width, 2 * height,
-        // null);
-    }
-
-    private void goUp(Graphics g) {
-        draw(g, 2);
-        // g.drawImage(bomber, x, y, x + width, y + height, width * frame, 2 * height,
-        // width * frame + width, 3 * height,
-        // null);
-    }
-
-    private void goDown(Graphics g) {
-        draw(g, 3);
-        // g.drawImage(bomber, x, y, x + width, y + height, width * frame, 3 * height,
-        // width * frame + width, 4 * height,
-        // null);
-    }
-
-    public void draw(Graphics g) {
+    public Image getImage() {
+        Image image;
         switch (direction) {
         case LEFT:
-            goLeft(g);
+            image = leftImages.get(frame);
             break;
         case RIGHT:
-            goRight(g);
+            image = rightImages.get(frame);
             break;
         case UP:
-            goUp(g);
+            image = upImages.get(frame);
             break;
         case DOWN:
-            goDown(g);
-            break;
         default:
-            goDown(g);
+            image = downImages.get(frame);
             break;
         }
-    }
-
-    private void draw(Graphics g, int level) {
-        x += dx;
-        y += dy;
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(bomber, x, y, x + width, y + height, width * frame, level * height, width * frame + width,
-                ++level * height, null);
+        return image;
     }
 
 }
