@@ -6,10 +6,8 @@ import javax.swing.ImageIcon;
 
 import jojo.tools.PathHelper;
 
-public class Enemy {
+public class Enemy extends Sprite {
     private Image enemy;
-    private int width;
-    private int height;
     private int speed;
 
     private int x;
@@ -23,6 +21,8 @@ public class Enemy {
     public Enemy() {
         var resource = PathHelper.resourceURL("/images/enemy.png");
         enemy = new ImageIcon(resource).getImage();
+
+        position = new Position();
         width = enemy.getWidth(null) / 9;
         height = enemy.getHeight(null) / 7;
         speed = 1;

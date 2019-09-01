@@ -1,77 +1,110 @@
 package jojo;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
+import lombok.Getter;
+
 public class Background {
-    private int width;
-    private int height;
-    private int[] Maps;
+    @Getter
+    private int column;
+    @Getter
+    private int row;
+    @Getter
+    private List<Tile> tiles;
 
     private Random random;
 
     public Background() {
-        width = 25;
-        height = 15;
-        Maps = new int[width * height];
+        column = 25;
+        row = 15;
         random = new Random(new Date().getTime());
+        tiles = new ArrayList<>(column * row);
+
         InitMap();
     }
 
-    public int getHeight() {
-        return height;
+    private int getIndex(int x, int y) {
+        return x + y * column;
     }
 
-    public int getWidth() {
-        return width;
+    public Position getPosition(int index) {
+        int height = ImageLoader.getTileHeight() * (index / column);
+        int width = ImageLoader.getTileWidth() * (index % column);
+
+        return new Position(width, height);
     }
 
-    public int getValue(int x, int y) {
-        int index = getIndex(x, y);
-        return Maps[index];
+    public void update() {
+
     }
 
-    public int getIndex(int x, int y) {
-        return x + y * width;
+    public List<Tile> getSurrounds(Player player) {
+        int currentCol = player.getPosition().getX() / ImageLoader.getTileWidth();
+        int currentRow = player.getPosition().getY() / ImageLoader.getTileHeight();
+        int index = column * currentRow + currentCol;
+
+        return new ArrayList<Tile>(9) {
+            {
+                add(tiles.get(index - column - 1));
+                add(tiles.get(index - column));
+                add(tiles.get(index - column + 1));
+                add(tiles.get(index - 1));
+                add(tiles.get(index));
+                add(tiles.get(index + 1));
+                add(tiles.get(index + column - 1));
+                add(tiles.get(index + column));
+                add(tiles.get(index + column + 1));
+
+            }
+        };
     }
 
     private void InitMap() {
+        for (int i = 0; i < column * row; i++) {
+            tiles.add(new Tile(getPosition(i)));
+        }
+
         // put surrounds
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int x = 0; x < column; x++) {
+            for (int y = 0; y < row; y++) {
                 int index = getIndex(x, y);
-                if (x == 0 || y == 0 || x == width - 1 || y == height - 1 || (x % 2 == 0 && y % 2 == 0)) {
-                    Maps[index] = TileItem.ICRONWALL.getValue();
+                if (x == 0 || y == 0 || x == column - 1 || y == row - 1 || (x % 2 == 0 && y % 2 == 0)) {
+                    Tile tile = tiles.get(index);
+                    tile.setValue(TileItem.ICRONWALL.getValue());
                 }
             }
         }
 
-        Maps[getIndex(2, 1)] = TileItem.ICRONWALL.getValue();
-        Maps[getIndex(1, 2)] = TileItem.ICRONWALL.getValue();
-        Maps[getIndex(1, 1)] = TileItem.ICRONWALL.getValue();
+        tiles.get(getIndex(2, 1)).setValue(TileItem.ICRONWALL.getValue());
+        tiles.get(getIndex(1, 2)).setValue(TileItem.ICRONWALL.getValue());
+        tiles.get(getIndex(1, 1)).setValue(TileItem.ICRONWALL.getValue());
 
         // put walls
-        int maxItem = Math.round(width * height * 0.3f);
+        int maxItem = Math.round(column * row * 0.3f);
         int i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.ROAD.getValue()) {
-                Maps[index] = TileItem.WALL.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.ROAD.getValue()) {
+                tile.updateValue(TileItem.WALL.getValue());
                 i++;
             }
         }
-
-        Maps[getIndex(2, 1)] = TileItem.ROAD.getValue();
-        Maps[getIndex(1, 2)] = TileItem.ROAD.getValue();
-        Maps[getIndex(1, 1)] = TileItem.ROAD.getValue();
+        tiles.get(getIndex(2, 1)).setValue(TileItem.ROAD.getValue());
+        tiles.get(getIndex(1, 2)).setValue(TileItem.ROAD.getValue());
+        tiles.get(getIndex(1, 1)).setValue(TileItem.ROAD.getValue());
 
         // put a door
         maxItem = 1;
         i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.WALL.getValue()) {
-                Maps[index] = Maps[index] + TileItem.DOOR.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.WALL.getValue()) {
+                tile.updateValue(TileItem.DOOR.getValue());
                 i++;
             }
         }
@@ -81,8 +114,9 @@ public class Background {
         i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.WALL.getValue()) {
-                Maps[index] = Maps[index] + TileItem.BOMBUP.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.WALL.getValue()) {
+                tile.updateValue(TileItem.BOMBUP.getValue());
                 i++;
             }
         }
@@ -91,8 +125,9 @@ public class Background {
         i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.WALL.getValue()) {
-                Maps[index] = Maps[index] + TileItem.POWERUP.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.WALL.getValue()) {
+                tile.updateValue(TileItem.POWERUP.getValue());
                 i++;
             }
         }
@@ -101,8 +136,9 @@ public class Background {
         i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.WALL.getValue()) {
-                Maps[index] = Maps[index] + TileItem.LIFEUP.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.WALL.getValue()) {
+                tile.updateValue(TileItem.LIFEUP.getValue());
                 i++;
             }
         }
@@ -111,8 +147,9 @@ public class Background {
         i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.WALL.getValue()) {
-                Maps[index] = Maps[index] + TileItem.SPEEDUP.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.WALL.getValue()) {
+                tile.updateValue(TileItem.SPEEDUP.getValue());
                 i++;
             }
         }
@@ -121,8 +158,9 @@ public class Background {
         i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
-            if (Maps[index] == TileItem.WALL.getValue()) {
-                Maps[index] = Maps[index] + TileItem.REMOTECONTROL.getValue();
+            Tile tile = tiles.get(index);
+            if (tile.getValue() == TileItem.WALL.getValue()) {
+                tile.updateValue(TileItem.REMOTECONTROL.getValue());
                 i++;
             }
         }
@@ -130,6 +168,6 @@ public class Background {
     }
 
     private int getRandomValue() {
-        return random.nextInt(width * height);
+        return random.nextInt(column * row);
     }
 }

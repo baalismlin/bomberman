@@ -1,110 +1,20 @@
 package jojo;
 
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import jojo.tools.PathHelper;
+public class Player extends Sprite {
 
-public class Player {
-    private Image source;
-
-    private int speed;
-    private Direction direction;
     private int frame;
-    private int width;
-    private int height;
-
-    private int x;
-    private int y;
-
-    private List<Image> leftImages;
-    private List<Image> rightImages;
-    private List<Image> upImages;
-    private List<Image> downImages;
-    private List<Image> dieImages;
 
     public Player() {
-        source = new ImageIcon(PathHelper.resourceURL("/images/play.png")).getImage();
-
-        width = source.getWidth(null) / 4;
-        height = source.getHeight(null) / 6;
+        position = new Position(ImageLoader.getTileWidth(), ImageLoader.getTileHeight());
+        width = ImageLoader.getPlayerWidth();
+        height = ImageLoader.getPlayerheight();
         speed = 1;
         direction = Direction.DOWN;
-
-        leftImages = new ArrayList<>(4);
-        rightImages = new ArrayList<>(4);
-        upImages = new ArrayList<>(4);
-        downImages = new ArrayList<>(4);
-        dieImages = new ArrayList<>(8);
-
-        for (int col = 0; col < 4; col++) {
-            // line 1 left moving
-            leftImages.add(getImage(0, col));
-
-            // line 2 right moving
-            rightImages.add(getImage(1, col));
-
-            // line 3 up moving
-            upImages.add(getImage(2, col));
-
-            // line 4 down moving
-            downImages.add(getImage(3, col));
-
-            // line 5
-            dieImages.add(getImage(4, col));
-
-        }
-
-        for (int col = 0; col < 4; col++) {
-            dieImages.add(getImage(4, col));
-        }
-
-    }
-
-    private Image getImage(int row, int col) {
-        Image image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        var g2d = (Graphics2D) image.getGraphics();
-        g2d.drawImage(source, 0, 0, width, height, col * width, row * height, ++col * width, ++row * height, null);
-        return image;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void startMove(Direction direction, int hDirection, int vDirection) {
-        x += hDirection * speed;
-        y += vDirection * speed;
-        if (direction != this.direction) {
-            this.direction = direction;
-            frame = 0;
-        } else {
-            frame = frame == 3 ? 0 : frame + 1;
-        }
 
     }
 
@@ -112,20 +22,108 @@ public class Player {
         Image image;
         switch (direction) {
         case LEFT:
-            image = leftImages.get(frame);
+            image = ImageLoader.getPlayerLeftImages().get(frame);
             break;
         case RIGHT:
-            image = rightImages.get(frame);
+            image = ImageLoader.getPlayerRightImages().get(frame);
             break;
         case UP:
-            image = upImages.get(frame);
+            image = ImageLoader.getPlayerUpImages().get(frame);
             break;
         case DOWN:
         default:
-            image = downImages.get(frame);
+            image = ImageLoader.getPlayerDownImages().get(frame);
             break;
         }
         return image;
+    }
+
+    public void update(List<Tile> tiles) {
+        if (!isMoving()) {
+            return;
+        }
+
+        frame = frame == 3 ? 0 : frame + 1;
+
+        switch (direction) {
+        case RIGHT:
+            updatePosition(speed, 0);
+            break;
+        case LEFT:
+            updatePosition(-1 * speed, 0);
+            break;
+        case UP:
+            updatePosition(0, -1 * speed);
+            break;
+        case DOWN:
+            updatePosition(0, speed);
+            break;
+        }
+
+        for (int i = 0; i < tiles.size(); i++) {
+            Tile tile = tiles.get(i);
+            if (Sprite.collide(this, tile)) {
+
+                switch (tile.getItem()) {
+                case WALL:
+                case ICRONWALL:
+                    switch (direction) {
+                    case RIGHT:
+                        updatePosition(-1 * speed, 0);
+                        break;
+                    case LEFT:
+                        updatePosition(speed, 0);
+                        break;
+                    case UP:
+                        updatePosition(0, speed);
+                        break;
+                    case DOWN:
+                        updatePosition(0, -1 * speed);
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+            }
+        }
+    }
+
+    public void keyPressed(KeyEvent e) {
+        switch (e.getKeyCode()) {
+        case KeyEvent.VK_LEFT:
+            directionEvent(Direction.LEFT);
+            break;
+        case KeyEvent.VK_RIGHT:
+            directionEvent(Direction.RIGHT);
+            break;
+        case KeyEvent.VK_UP:
+            directionEvent(Direction.UP);
+            break;
+        case KeyEvent.VK_DOWN:
+            directionEvent(Direction.DOWN);
+            break;
+        }
+    }
+
+    private void directionEvent(Direction direction) {
+        moving = true;
+        if (this.direction != direction) {
+            frame = 0;
+        }
+        this.direction = direction;
+    }
+
+    public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()) {
+        case KeyEvent.VK_LEFT:
+        case KeyEvent.VK_RIGHT:
+        case KeyEvent.VK_UP:
+        case KeyEvent.VK_DOWN:
+            setMoving(false);
+            break;
+        }
     }
 
 }
