@@ -2,22 +2,26 @@ package jojo;
 
 import java.awt.Image;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Getter;
 
 public class Player extends Sprite {
 
-    private int frame;
+    @Getter
+    private BombGroup bombGroup;
+    private Background background;
 
-    public Player() {
-        position = new Position(ImageLoader.getTileWidth(), ImageLoader.getTileHeight());
+    public Player(Background background) {
         width = ImageLoader.getPlayerWidth();
         height = ImageLoader.getPlayerheight();
-        speed = 1;
-        direction = Direction.DOWN;
-
+        speed = 2;
+        position.set(ImageLoader.getTileWidth(), ImageLoader.getTileHeight());
+        bombGroup = new BombGroup(background);
+        this.background = background;
     }
 
+    @Override
     public Image getImage() {
         Image image;
         switch (direction) {
@@ -38,55 +42,31 @@ public class Player extends Sprite {
         return image;
     }
 
-    public void update(List<Tile> tiles) {
+    public void update() {
         if (!isMoving()) {
             return;
         }
 
-        frame = frame == 3 ? 0 : frame + 1;
+        var tiles = background.getSurrounds(this);
 
-        switch (direction) {
-        case RIGHT:
-            updatePosition(speed, 0);
-            break;
-        case LEFT:
-            updatePosition(-1 * speed, 0);
-            break;
-        case UP:
-            updatePosition(0, -1 * speed);
-            break;
-        case DOWN:
-            updatePosition(0, speed);
-            break;
-        }
+        loopFrame(3);
 
-        for (int i = 0; i < tiles.size(); i++) {
-            Tile tile = tiles.get(i);
-            if (Sprite.collide(this, tile)) {
+        increaseDelta();
 
-                switch (tile.getItem()) {
-                case WALL:
-                case ICRONWALL:
-                    switch (direction) {
-                    case RIGHT:
-                        updatePosition(-1 * speed, 0);
-                        break;
-                    case LEFT:
-                        updatePosition(speed, 0);
-                        break;
-                    case UP:
-                        updatePosition(0, speed);
-                        break;
-                    case DOWN:
-                        updatePosition(0, -1 * speed);
-                        break;
-                    }
-                    break;
-                default:
-                    break;
-                }
+        var groupCollide = Sprite.groupCollide(this, List.copyOf(tiles.values()));
 
+        boolean flag = groupCollide.stream().anyMatch(item -> {
+            switch (((Tile) item).getItem()) {
+            case WALL:
+            case ICRONWALL:
+                return true;
+            default:
+                return false;
             }
+        });
+
+        if (flag) {
+            decreaseDelta();
         }
     }
 
@@ -104,7 +84,14 @@ public class Player extends Sprite {
         case KeyEvent.VK_DOWN:
             directionEvent(Direction.DOWN);
             break;
+        case KeyEvent.VK_SPACE:
+            dropBombEvent();
+            break;
         }
+    }
+
+    private void dropBombEvent() {
+        bombGroup.dropBomb(position.getX(), position.getY());
     }
 
     private void directionEvent(Direction direction) {
@@ -121,7 +108,7 @@ public class Player extends Sprite {
         case KeyEvent.VK_RIGHT:
         case KeyEvent.VK_UP:
         case KeyEvent.VK_DOWN:
-            setMoving(false);
+            moving = false;
             break;
         }
     }

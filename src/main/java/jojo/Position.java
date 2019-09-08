@@ -25,7 +25,8 @@ public class Position {
     }
 
     public void set(int x, int y) {
-        setX(x);
-        setY(y);
+        this.x = x;
+        this.y = y;
     }
+
 }

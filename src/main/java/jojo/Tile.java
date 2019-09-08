@@ -11,12 +11,13 @@ public class Tile extends Sprite {
     @Setter
     private int value;
 
-    public Tile(Position position) {
-        this.position = position;
+    public Tile(int x, int y) {
+        this.position.set(x, y);
         width = ImageLoader.getTileWidth();
         height = ImageLoader.getTileHeight();
     }
 
+    @Override
     public Image getImage() {
         var item = getItem();
         return ImageLoader.getTileItems().get(item);

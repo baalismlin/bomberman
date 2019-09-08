@@ -2,6 +2,7 @@ package jojo;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -26,45 +27,54 @@ public class Background {
         InitMap();
     }
 
-    private int getIndex(int x, int y) {
-        return x + y * column;
+    public int getIndex(int column, int row) {
+        return column + row * this.column;
     }
 
-    public Position getPosition(int index) {
-        int height = ImageLoader.getTileHeight() * (index / column);
-        int width = ImageLoader.getTileWidth() * (index % column);
+    public int getX(int index) {
+        return ImageLoader.getTileWidth() * (index % column);
+    }
 
-        return new Position(width, height);
+    public int getY(int index) {
+        return ImageLoader.getTileHeight() * (index / column);
     }
 
     public void update() {
 
     }
 
-    public List<Tile> getSurrounds(Player player) {
-        int currentCol = player.getPosition().getX() / ImageLoader.getTileWidth();
-        int currentRow = player.getPosition().getY() / ImageLoader.getTileHeight();
+    public int getColumn(int x) {
+        return x / ImageLoader.getTileWidth();
+    }
+
+    public int getRow(int y) {
+        return y / ImageLoader.getTileHeight();
+    }
+
+    public HashMap<Direction, Tile> getSurrounds(Sprite sprite) {
+        int currentCol = getColumn(sprite.getPosition().getX());
+        int currentRow = getRow(sprite.getPosition().getY());
         int index = column * currentRow + currentCol;
 
-        return new ArrayList<Tile>(9) {
-            {
-                add(tiles.get(index - column - 1));
-                add(tiles.get(index - column));
-                add(tiles.get(index - column + 1));
-                add(tiles.get(index - 1));
-                add(tiles.get(index));
-                add(tiles.get(index + 1));
-                add(tiles.get(index + column - 1));
-                add(tiles.get(index + column));
-                add(tiles.get(index + column + 1));
+        return new HashMap<Direction, Tile>(8) {
+            private static final long serialVersionUID = 1159546289936330648L;
 
+            {
+                put(Direction.LEFT_UP, tiles.get(index - column - 1));
+                put(Direction.UP, tiles.get(index - column));
+                put(Direction.RIGHT_UP, tiles.get(index - column + 1));
+                put(Direction.LEFT, tiles.get(index - 1));
+                put(Direction.RIGHT, tiles.get(index + 1));
+                put(Direction.LEFT_DOWN, tiles.get(index + column - 1));
+                put(Direction.DOWN, tiles.get(index + column));
+                put(Direction.RIGHT_DOWN, tiles.get(index + column + 1));
             }
         };
     }
 
     private void InitMap() {
         for (int i = 0; i < column * row; i++) {
-            tiles.add(new Tile(getPosition(i)));
+            tiles.add(new Tile(getX(i), getY(i)));
         }
 
         // put surrounds

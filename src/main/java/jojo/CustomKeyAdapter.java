@@ -5,8 +5,8 @@ import java.awt.event.KeyEvent;
 
 public class CustomKeyAdapter extends KeyAdapter {
     private Player player;
-    private Tile tile;
-    private Background background;
+    // private Tile tile;
+    // private Background background;
 
     public CustomKeyAdapter(Player player) {
         this.player = player;

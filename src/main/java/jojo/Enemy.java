@@ -1,64 +1,61 @@
 package jojo;
 
 import java.awt.Image;
-
-import javax.swing.ImageIcon;
-
-import jojo.tools.PathHelper;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 public class Enemy extends Sprite {
-    private Image enemy;
-    private int speed;
 
-    private int x;
-    private int y;
-    private int dx;
-    private int dy;
-
-    private Direction prevDirection;
-    private Direction direction;
+    private static final Random RANDOM = new Random(new Date().getTime());
 
     public Enemy() {
-        var resource = PathHelper.resourceURL("/images/enemy.png");
-        enemy = new ImageIcon(resource).getImage();
-
-        position = new Position();
-        width = enemy.getWidth(null) / 9;
-        height = enemy.getHeight(null) / 7;
+        width = ImageLoader.getEnemyWidth();
+        height = ImageLoader.getEnemyHeight();
         speed = 1;
+        moving = true;
     }
 
-    public int getX() {
-        return x;
+    @Override
+    public Image getImage() {
+        Integer level = Integer.valueOf(0);
+        Image image = ImageLoader.getEnemyImages().get(level).get(frame);
+        return image;
     }
 
-    public int getY() {
-        return y;
+    public void update(Background background) {
+        if (!isMoving()) {
+            return;
+        }
+        loopFrame(3);
+
+        randomDirection();
+
+        var tiles = background.getSurrounds(this);
+
+        increaseDelta();
+
+        var groupCollide = Sprite.groupCollide(this, List.copyOf(tiles.values()));
+
+        boolean noMoving = groupCollide.stream().anyMatch(item -> {
+            switch (((Tile) item).getItem()) {
+            case WALL:
+            case ICRONWALL:
+                return true;
+            default:
+                return false;
+            }
+        });
+
+        if (noMoving) {
+            decreaseDelta();
+        }
     }
 
-    public void setDx(int dx) {
-        this.dx = dx;
-    }
-
-    public void setDy(int dy) {
-        this.dy = dy;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void startMove() {
-
-    }
-
-    public void stopMove() {
-        dx = 0;
-        dy = 0;
+    private void randomDirection() {
+        if (RANDOM.nextInt(10) > 8) {
+            direction = Direction.toDirection(RANDOM.nextInt(3) + 1);
+        }
     }
 
 }

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -12,16 +13,18 @@ import javax.swing.Timer;
 public class Board extends JPanel implements ActionListener {
     private static final long serialVersionUID = -200187670397841611L;
     private Player player;
+    private EnemyGroup enemyGroup;
     private Background background;
     private Timer timer;
 
     public Board() {
-        player = new Player();
         background = new Background();
+        player = new Player(background);
+        enemyGroup = new EnemyGroup(background);
 
         addKeyListener(new CustomKeyAdapter(player));
         setFocusable(true);
-        timer = new Timer(42, this);
+        timer = new Timer(40, this);
         timer.start();
     }
 
@@ -29,16 +32,17 @@ public class Board extends JPanel implements ActionListener {
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         // draw background
+        drawImage(g2d, background.getTiles());
 
-        background.getTiles().forEach(tile -> {
-            if (tile.isVisible())
-                g2d.drawImage(tile.getImage(), tile.getPosition().getX(), tile.getPosition().getY(), this);
-        });
+        // draw enemies
+        drawImage(g2d, enemyGroup.getEnemies());
+
+        // draw bombs
+        drawImage(g2d, player.getBombGroup().getBombs());
 
         // draw player
-        if (player.isVisible()) {
-            g2d.drawImage(player.getImage(), player.position.getX(), player.position.getY(), this);
-        }
+        drawImage(g2d, List.of(player));
+
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -46,9 +50,20 @@ public class Board extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         background.update();
 
-        var tiles = background.getSurrounds(player);
-        player.update(tiles);
+        enemyGroup.update();
+
+        player.update();
+
+        player.getBombGroup().update();
 
         repaint();
+    }
+
+    private void drawImage(Graphics2D g2d, List<? extends Sprite> sprites) {
+        sprites.forEach(sprite -> {
+            if (sprite.isVisible()) {
+                g2d.drawImage(sprite.getImage(), sprite.position.getX(), sprite.position.getY(), this);
+            }
+        });
     }
 }

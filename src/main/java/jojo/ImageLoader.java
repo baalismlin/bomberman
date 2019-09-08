@@ -15,7 +15,7 @@ import lombok.Getter;
 
 public final class ImageLoader {
 
-    // load player image
+    // load player.png
     @Getter
     private static List<Image> playerLeftImages = new ArrayList<>(4);
     @Getter
@@ -26,7 +26,6 @@ public final class ImageLoader {
     private static List<Image> playerDownImages = new ArrayList<>(4);
     @Getter
     private static List<Image> playerDieImages = new ArrayList<>(8);
-
     @Getter
     private static int playerWidth;
     @Getter
@@ -38,39 +37,30 @@ public final class ImageLoader {
         playerheight = palyerSource.getHeight(null) / 6;
         for (int col = 0; col < 4; col++) {
             // line 1 left moving
-            playerLeftImages.add(getPlayerImage(palyerSource, 0, col));
+            playerLeftImages.add(getImage(palyerSource, playerWidth, playerheight, 0, col));
 
             // line 2 right moving
-            playerRightImages.add(getPlayerImage(palyerSource, 1, col));
+            playerRightImages.add(getImage(palyerSource, playerWidth, playerheight, 1, col));
 
             // line 3 up moving
-            playerUpImages.add(getPlayerImage(palyerSource, 2, col));
+            playerUpImages.add(getImage(palyerSource, playerWidth, playerheight, 2, col));
 
             // line 4 down moving
-            playerDownImages.add(getPlayerImage(palyerSource, 3, col));
+            playerDownImages.add(getImage(palyerSource, playerWidth, playerheight, 3, col));
 
         }
 
         for (int row = 4; row < 6; row++) {
             for (int col = 0; col < 4; col++) {
-                playerDieImages.add(getPlayerImage(palyerSource, row, col));
+                playerDieImages.add(getImage(palyerSource, playerWidth, playerheight, row, col));
             }
         }
 
     }
 
-    private static Image getPlayerImage(Image source, int row, int col) {
-
-        Image image = new BufferedImage(playerWidth, playerheight, BufferedImage.TYPE_INT_ARGB);
-        var g2d = (Graphics2D) image.getGraphics();
-        g2d.drawImage(source, 0, 0, playerWidth, playerheight, col * playerWidth, row * playerheight,
-                ++col * playerWidth, ++row * playerheight, null);
-        return image;
-    }
-
-    // load tile image
+    // load tile.png
     @Getter
-    private static HashMap<TileItem, Image> tileItems = new HashMap<TileItem, Image>(9);;
+    private static HashMap<TileItem, Image> tileItems = new HashMap<>(9);
     @Getter
     private static int tileWidth;
     @Getter
@@ -80,25 +70,81 @@ public final class ImageLoader {
         Image tileSource = new ImageIcon(PathHelper.resourceURL("/images/tile.png")).getImage();
         tileWidth = tileSource.getWidth(null) / 9;
         tileHeight = tileSource.getHeight(null);
-        tileItems.put(TileItem.ROAD, getTileImage(tileSource, 0, 0));
-        tileItems.put(TileItem.BOMBUP, getTileImage(tileSource, 0, 1));
-        tileItems.put(TileItem.POWERUP, getTileImage(tileSource, 0, 2));
-        tileItems.put(TileItem.SPEEDUP, getTileImage(tileSource, 0, 3));
-        tileItems.put(TileItem.LIFEUP, getTileImage(tileSource, 0, 4));
-        tileItems.put(TileItem.REMOTECONTROL, getTileImage(tileSource, 0, 5));
-        tileItems.put(TileItem.DOOR, getTileImage(tileSource, 0, 6));
-        tileItems.put(TileItem.WALL, getTileImage(tileSource, 0, 7));
-        tileItems.put(TileItem.ICRONWALL, getTileImage(tileSource, 0, 8));
+        tileItems.put(TileItem.ROAD, getImage(tileSource, tileWidth, tileHeight, 0, 0));
+        tileItems.put(TileItem.BOMBUP, getImage(tileSource, tileWidth, tileHeight, 0, 1));
+        tileItems.put(TileItem.POWERUP, getImage(tileSource, tileWidth, tileHeight, 0, 2));
+        tileItems.put(TileItem.SPEEDUP, getImage(tileSource, tileWidth, tileHeight, 0, 3));
+        tileItems.put(TileItem.LIFEUP, getImage(tileSource, tileWidth, tileHeight, 0, 4));
+        tileItems.put(TileItem.REMOTECONTROL, getImage(tileSource, tileWidth, tileHeight, 0, 5));
+        tileItems.put(TileItem.DOOR, getImage(tileSource, tileWidth, tileHeight, 0, 6));
+        tileItems.put(TileItem.WALL, getImage(tileSource, tileWidth, tileHeight, 0, 7));
+        tileItems.put(TileItem.ICRONWALL, getImage(tileSource, tileWidth, tileHeight, 0, 8));
     }
 
-    private static Image getTileImage(Image source, int row, int col) {
+    // load enemy.png
+    @Getter
+    private static HashMap<Integer, List<Image>> enemyImages = new HashMap<>(7);
+    @Getter
+    private static int enemyWidth;
+    @Getter
+    private static int enemyHeight;
 
-        Image image = new BufferedImage(tileWidth, tileHeight, BufferedImage.TYPE_INT_ARGB);
+    static {
+        Image enemySource = new ImageIcon(PathHelper.resourceURL("/images/enemy.png")).getImage();
+        enemyWidth = enemySource.getWidth(null) / 9;
+        enemyHeight = enemySource.getHeight(null) / 7;
+        for (int row = 0; row < 7; row++) {
+            var temp = new ArrayList<Image>(9);
+            for (int col = 0; col < 9; col++) {
+                temp.add(getImage(enemySource, enemyWidth, enemyHeight, row, col));
+            }
+            enemyImages.put(Integer.valueOf(row), temp);
+        }
+    }
+
+    // load bomb.png
+    @Getter
+    private static List<Image> bombImages = new ArrayList<>(4);
+    @Getter
+    private static int bombWidth;
+    @Getter
+    private static int bombHeight;
+
+    static {
+        Image bombSource = new ImageIcon(PathHelper.resourceURL("/images/bomb.png")).getImage();
+        bombWidth = bombSource.getWidth(null) / 4;
+        bombHeight = bombSource.getHeight(null);
+        for (int col = 0; col < 4; col++) {
+            bombImages.add(getImage(bombSource, bombWidth, bombHeight, 0, col));
+        }
+    }
+
+    // load fire.png
+    private static List<Image> centerFireImages = new ArrayList<>(4);
+    private static List<Image> leftFireImages = new ArrayList<>(4);
+    private static List<Image> rightFireImages = new ArrayList<>(4);
+    private static List<Image> upFireImages = new ArrayList<>(4);
+    private static List<Image> downFireImages = new ArrayList<>(4);
+    private static List<Image> horizontalFireImages = new ArrayList<>(4);
+    private static List<Image> verticalFireImages = new ArrayList<>(4);
+
+    static {
+        Image bombSource = new ImageIcon(PathHelper.resourceURL("/images/fire.png")).getImage();
+        for (int col = 0; col < 4; col++) {
+            centerFireImages.add(getImage(bombSource, bombWidth, bombHeight, 0, col));
+            leftFireImages.add(getImage(bombSource, bombWidth, bombHeight, 1, col));
+            rightFireImages.add(getImage(bombSource, bombWidth, bombHeight, 2, col));
+            upFireImages.add(getImage(bombSource, bombWidth, bombHeight, 3, col));
+            downFireImages.add(getImage(bombSource, bombWidth, bombHeight, 4, col));
+            horizontalFireImages.add(getImage(bombSource, bombWidth, bombHeight, 5, col));
+            verticalFireImages.add(getImage(bombSource, bombWidth, bombHeight, 6, col));
+        }
+    }
+
+    private static Image getImage(Image source, int width, int height, int row, int col) {
+        Image image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         var g2d = (Graphics2D) image.getGraphics();
-        g2d.drawImage(source, 0, 0, tileWidth, tileHeight, col * tileWidth, row * tileHeight, ++col * tileWidth,
-                ++row * tileHeight, null);
+        g2d.drawImage(source, 0, 0, width, height, col * width, row * height, ++col * width, ++row * height, null);
         return image;
     }
-
-    // load enemy image
 }
