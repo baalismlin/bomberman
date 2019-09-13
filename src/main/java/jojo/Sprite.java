@@ -67,8 +67,14 @@ public abstract class Sprite {
         this.direction = direction;
     }
 
-    public void loopFrame(int limit) {
-        frame = frame == limit ? 0 : frame + 1;
+    private long before = System.nanoTime();
+
+    public void loopFrame(int limit, int delay) {
+        long current = System.nanoTime();
+        if ((current - before) / 1000000L > delay) {
+            frame = frame == limit ? 0 : frame + 1;
+            before = current;
+        }
     }
 
     public void setDelta(int dxCoefficient, int dyCoefficient) {

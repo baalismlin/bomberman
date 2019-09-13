@@ -49,7 +49,7 @@ public class Player extends Sprite {
 
         var tiles = background.getSurrounds(this);
 
-        loopFrame(3);
+        loopFrame(3, 100);
 
         increaseDelta();
 
@@ -91,7 +91,8 @@ public class Player extends Sprite {
     }
 
     private void dropBombEvent() {
-        bombGroup.dropBomb(position.getX(), position.getY());
+        var center = getCenter();
+        bombGroup.dropBomb(center.getX(), center.getY());
     }
 
     private void directionEvent(Direction direction) {

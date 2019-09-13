@@ -38,7 +38,7 @@ public class EnemyGroup {
     }
 
     public void update() {
-        enemies.forEach(enemy -> {
+        enemies.stream().filter(enemy -> enemy.isVisible()).forEach(enemy -> {
             enemy.update(background);
         });
     }

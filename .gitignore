@@ -35,3 +35,6 @@ local.properties
 gradle.properties
 
 .vscode
+
+.apt_generated
+.apt_generated_tests

@@ -27,7 +27,7 @@ public class Enemy extends Sprite {
         if (!isMoving()) {
             return;
         }
-        loopFrame(3);
+        loopFrame(3, 300);
 
         randomDirection();
 

@@ -40,7 +40,7 @@ public class Background {
     }
 
     public void update() {
-
+        tiles.stream().filter(tile -> tile.getFireWall() != null).forEach(tile -> tile.getFireWall().update());
     }
 
     public int getColumn(int x) {
@@ -93,13 +93,13 @@ public class Background {
         tiles.get(getIndex(1, 1)).setValue(TileItem.ICRONWALL.getValue());
 
         // put walls
-        int maxItem = Math.round(column * row * 0.3f);
+        int maxItem = Math.round(column * row * 0.2f);
         int i = 0;
         while (i < maxItem) {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.ROAD.getValue()) {
-                tile.updateValue(TileItem.WALL.getValue());
+                tile.combineItem(TileItem.WALL);
                 i++;
             }
         }
@@ -114,7 +114,7 @@ public class Background {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.WALL.getValue()) {
-                tile.updateValue(TileItem.DOOR.getValue());
+                tile.combineItem(TileItem.DOOR);
                 i++;
             }
         }
@@ -126,7 +126,7 @@ public class Background {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.WALL.getValue()) {
-                tile.updateValue(TileItem.BOMBUP.getValue());
+                tile.combineItem(TileItem.BOMBUP);
                 i++;
             }
         }
@@ -137,7 +137,7 @@ public class Background {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.WALL.getValue()) {
-                tile.updateValue(TileItem.POWERUP.getValue());
+                tile.combineItem(TileItem.POWERUP);
                 i++;
             }
         }
@@ -148,7 +148,7 @@ public class Background {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.WALL.getValue()) {
-                tile.updateValue(TileItem.LIFEUP.getValue());
+                tile.combineItem(TileItem.LIFEUP);
                 i++;
             }
         }
@@ -159,7 +159,7 @@ public class Background {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.WALL.getValue()) {
-                tile.updateValue(TileItem.SPEEDUP.getValue());
+                tile.combineItem(TileItem.SPEEDUP);
                 i++;
             }
         }
@@ -170,7 +170,7 @@ public class Background {
             int index = getRandomValue();
             Tile tile = tiles.get(index);
             if (tile.getValue() == TileItem.WALL.getValue()) {
-                tile.updateValue(TileItem.REMOTECONTROL.getValue());
+                tile.combineItem(TileItem.REMOTECONTROL);
                 i++;
             }
         }
@@ -180,4 +180,5 @@ public class Background {
     private int getRandomValue() {
         return random.nextInt(column * row);
     }
+
 }

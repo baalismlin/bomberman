@@ -60,7 +60,7 @@ public final class ImageLoader {
 
     // load tile.png
     @Getter
-    private static HashMap<TileItem, Image> tileItems = new HashMap<>(9);
+    private static HashMap<TileItem, Image> itemImages = new HashMap<>(9);
     @Getter
     private static int tileWidth;
     @Getter
@@ -70,15 +70,15 @@ public final class ImageLoader {
         Image tileSource = new ImageIcon(PathHelper.resourceURL("/images/tile.png")).getImage();
         tileWidth = tileSource.getWidth(null) / 9;
         tileHeight = tileSource.getHeight(null);
-        tileItems.put(TileItem.ROAD, getImage(tileSource, tileWidth, tileHeight, 0, 0));
-        tileItems.put(TileItem.BOMBUP, getImage(tileSource, tileWidth, tileHeight, 0, 1));
-        tileItems.put(TileItem.POWERUP, getImage(tileSource, tileWidth, tileHeight, 0, 2));
-        tileItems.put(TileItem.SPEEDUP, getImage(tileSource, tileWidth, tileHeight, 0, 3));
-        tileItems.put(TileItem.LIFEUP, getImage(tileSource, tileWidth, tileHeight, 0, 4));
-        tileItems.put(TileItem.REMOTECONTROL, getImage(tileSource, tileWidth, tileHeight, 0, 5));
-        tileItems.put(TileItem.DOOR, getImage(tileSource, tileWidth, tileHeight, 0, 6));
-        tileItems.put(TileItem.WALL, getImage(tileSource, tileWidth, tileHeight, 0, 7));
-        tileItems.put(TileItem.ICRONWALL, getImage(tileSource, tileWidth, tileHeight, 0, 8));
+        itemImages.put(TileItem.ROAD, getImage(tileSource, tileWidth, tileHeight, 0, 0));
+        itemImages.put(TileItem.BOMBUP, getImage(tileSource, tileWidth, tileHeight, 0, 1));
+        itemImages.put(TileItem.POWERUP, getImage(tileSource, tileWidth, tileHeight, 0, 2));
+        itemImages.put(TileItem.SPEEDUP, getImage(tileSource, tileWidth, tileHeight, 0, 3));
+        itemImages.put(TileItem.LIFEUP, getImage(tileSource, tileWidth, tileHeight, 0, 4));
+        itemImages.put(TileItem.REMOTECONTROL, getImage(tileSource, tileWidth, tileHeight, 0, 5));
+        itemImages.put(TileItem.DOOR, getImage(tileSource, tileWidth, tileHeight, 0, 6));
+        itemImages.put(TileItem.WALL, getImage(tileSource, tileWidth, tileHeight, 0, 7));
+        itemImages.put(TileItem.ICRONWALL, getImage(tileSource, tileWidth, tileHeight, 0, 8));
     }
 
     // load enemy.png
@@ -120,12 +120,19 @@ public final class ImageLoader {
     }
 
     // load fire.png
+    @Getter
     private static List<Image> centerFireImages = new ArrayList<>(4);
+    @Getter
     private static List<Image> leftFireImages = new ArrayList<>(4);
+    @Getter
     private static List<Image> rightFireImages = new ArrayList<>(4);
+    @Getter
     private static List<Image> upFireImages = new ArrayList<>(4);
+    @Getter
     private static List<Image> downFireImages = new ArrayList<>(4);
+    @Getter
     private static List<Image> horizontalFireImages = new ArrayList<>(4);
+    @Getter
     private static List<Image> verticalFireImages = new ArrayList<>(4);
 
     static {
@@ -138,6 +145,17 @@ public final class ImageLoader {
             downFireImages.add(getImage(bombSource, bombWidth, bombHeight, 4, col));
             horizontalFireImages.add(getImage(bombSource, bombWidth, bombHeight, 5, col));
             verticalFireImages.add(getImage(bombSource, bombWidth, bombHeight, 6, col));
+        }
+    }
+
+    // load wall.png
+    @Getter
+    private static List<Image> wallImages = new ArrayList<>(6);
+
+    static {
+        Image wallSource = new ImageIcon(PathHelper.resourceURL("/images/wall.png")).getImage();
+        for (int col = 0; col < 6; col++) {
+            wallImages.add(getImage(wallSource, tileWidth, tileHeight, 0, col));
         }
     }
 

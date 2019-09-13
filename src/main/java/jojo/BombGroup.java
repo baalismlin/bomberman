@@ -22,19 +22,16 @@ public class BombGroup {
         this.background = background;
     }
 
-    public void dropBomb(int x, int y) {
+    public void dropBomb(int palyerX, int playerY) {
+
         Optional<Bomb> availableBomb = bombs.stream().filter(bomb -> !bomb.isVisible()).findFirst();
         availableBomb.ifPresent(bomb -> {
-            int currentCol = background.getColumn(x);
-            int currentRow = background.getRow(y);
-            int index = background.getIndex(currentCol, currentRow);
-            bomb.position.set(background.getX(index), background.getY(index));
-            bomb.setVisible(true);
+            bomb.startTimer(background, palyerX, playerY);
         });
     }
 
     public void update() {
-        bombs.forEach(bomb -> {
+        bombs.stream().filter(bomb -> bomb.isVisible()).forEach(bomb -> {
             bomb.update();
         });
     }
