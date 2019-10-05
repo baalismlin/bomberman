@@ -54,9 +54,9 @@ public class ImageTransparent {
 
                 for (int y = dstImage.getMinY(); y < dstImage.getHeight(); y++) {
                     for (int x = dstImage.getMinX(); x < dstImage.getWidth(); x++) {
-                        var rgb = dstImage.getRGB(x, y);
+                        int rgb = dstImage.getRGB(x, y);
                         if (filters.stream().anyMatch(value -> value.intValue() == rgb)) {
-                            var newRGB = (1 << 24) | (rgb & 0x00ffffff);
+                            int newRGB = (1 << 24) | (rgb & 0x00ffffff);
 
                             dstImage.setRGB(x, y, newRGB);
                         }

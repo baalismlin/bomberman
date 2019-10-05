@@ -6,7 +6,7 @@ import java.awt.event.KeyEvent;
 public class CustomKeyAdapter extends KeyAdapter {
     private Player player;
     // private Tile tile;
-    // private Background background;
+    // private TileGroup tilegroup;
 
     public CustomKeyAdapter(Player player) {
         this.player = player;
@@ -14,11 +14,13 @@ public class CustomKeyAdapter extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        player.keyPressed(e);
+        if (!player.isDied())
+            player.keyPressed(e);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        player.keyReleased(e);
+        if (!player.isDied())
+            player.keyReleased(e);
     }
 }

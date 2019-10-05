@@ -5,6 +5,8 @@ import java.awt.Image;
 public class FireWall extends Sprite {
 
     public FireWall(int x, int y) {
+        width = ImageLoader.getTileWidth();
+        height = ImageLoader.getTileHeight();
         position.set(x, y);
     }
 

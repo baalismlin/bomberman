@@ -94,7 +94,7 @@ public final class ImageLoader {
         enemyWidth = enemySource.getWidth(null) / 9;
         enemyHeight = enemySource.getHeight(null) / 7;
         for (int row = 0; row < 7; row++) {
-            var temp = new ArrayList<Image>(9);
+            ArrayList<Image> temp = new ArrayList<Image>(9);
             for (int col = 0; col < 9; col++) {
                 temp.add(getImage(enemySource, enemyWidth, enemyHeight, row, col));
             }
@@ -161,7 +161,7 @@ public final class ImageLoader {
 
     private static Image getImage(Image source, int width, int height, int row, int col) {
         Image image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        var g2d = (Graphics2D) image.getGraphics();
+        Graphics2D g2d = (Graphics2D) image.getGraphics();
         g2d.drawImage(source, 0, 0, width, height, col * width, row * height, ++col * width, ++row * height, null);
         return image;
     }

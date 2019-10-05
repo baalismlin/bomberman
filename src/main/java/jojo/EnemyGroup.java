@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -11,12 +12,13 @@ public class EnemyGroup {
     @Getter
     private List<Enemy> enemies;
     private final int _enemyCount = 10;
-    private Background background;
+    private TileGroup tilegroup;
+    private BombGroup bombGroup;
 
-    public EnemyGroup(Background background) {
+    public EnemyGroup(TileGroup tilegroup, BombGroup bombGroup) {
         enemies = new ArrayList<>(_enemyCount);
-        this.background = background;
-
+        this.tilegroup = tilegroup;
+        this.bombGroup = bombGroup;
         initEmemise();
     }
 
@@ -24,10 +26,10 @@ public class EnemyGroup {
         Random random = new Random(new Date().getTime());
         int i = 0;
         while (i < _enemyCount) {
-            int index = random.nextInt(background.getRow() * background.getColumn());
-            int x = background.getX(index);
-            int y = background.getY(index);
-            Tile tile = background.getTiles().get(index);
+            int index = random.nextInt(tilegroup.getRow() * tilegroup.getColumn());
+            int x = tilegroup.getX(index);
+            int y = tilegroup.getY(index);
+            Tile tile = tilegroup.getTiles().get(index);
             if (x > 100 && y > 100 && tile.getItem() == TileItem.ROAD) {
                 Enemy enemy = new Enemy();
                 enemy.position.set(x, y);
@@ -39,8 +41,12 @@ public class EnemyGroup {
 
     public void update() {
         enemies.stream().filter(enemy -> enemy.isVisible()).forEach(enemy -> {
-            enemy.update(background);
+            enemy.update(tilegroup, bombGroup);
         });
+    }
+
+    public List<Enemy> getVisibleEnemies() {
+        return enemies.stream().filter(enemy -> enemy.isVisible()).collect(Collectors.toList());
     }
 
 }

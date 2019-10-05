@@ -3,6 +3,7 @@ package jojo;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -10,64 +11,116 @@ public class Player extends Sprite {
 
     @Getter
     private BombGroup bombGroup;
-    private Background background;
+    private TileGroup tilegroup;
 
-    public Player(Background background) {
+    public Player(TileGroup tilegroup) {
         width = ImageLoader.getPlayerWidth();
         height = ImageLoader.getPlayerheight();
         speed = 2;
         position.set(ImageLoader.getTileWidth(), ImageLoader.getTileHeight());
-        bombGroup = new BombGroup(background);
-        this.background = background;
+        bombGroup = new BombGroup(tilegroup);
+        this.tilegroup = tilegroup;
     }
 
     @Override
     public Image getImage() {
         Image image;
-        switch (direction) {
-        case LEFT:
-            image = ImageLoader.getPlayerLeftImages().get(frame);
-            break;
-        case RIGHT:
-            image = ImageLoader.getPlayerRightImages().get(frame);
-            break;
-        case UP:
-            image = ImageLoader.getPlayerUpImages().get(frame);
-            break;
-        case DOWN:
-        default:
-            image = ImageLoader.getPlayerDownImages().get(frame);
-            break;
+        if (isDied()) {
+            image = ImageLoader.getPlayerDieImages().get(frame);
+        } else {
+
+            switch (direction) {
+            case LEFT:
+                image = ImageLoader.getPlayerLeftImages().get(frame);
+                break;
+            case RIGHT:
+                image = ImageLoader.getPlayerRightImages().get(frame);
+                break;
+            case UP:
+                image = ImageLoader.getPlayerUpImages().get(frame);
+                break;
+            case DOWN:
+            default:
+                image = ImageLoader.getPlayerDownImages().get(frame);
+                break;
+            }
         }
         return image;
     }
 
     public void update() {
-        if (!isMoving()) {
-            return;
-        }
-
-        var tiles = background.getSurrounds(this);
-
-        loopFrame(3, 100);
-
-        increaseDelta();
-
-        var groupCollide = Sprite.groupCollide(this, List.copyOf(tiles.values()));
-
-        boolean flag = groupCollide.stream().anyMatch(item -> {
-            switch (((Tile) item).getItem()) {
-            case WALL:
-            case ICRONWALL:
-                return true;
-            default:
-                return false;
+        if (isDied()) {
+            if (frame == 7) {
+                visible = false;
             }
-        });
+            loopFrame(7, 200);
+        } else {
 
-        if (flag) {
-            decreaseDelta();
+            if (!isMoving()) {
+                return;
+            }
+
+            loopFrame(3, 50);
+
+            increaseDelta();
+
+            List<Sprite> tiles = tilegroup.getSurrounds(this).values().stream()
+                    .filter(tile -> tile.getItem() == TileItem.WALL || tile.getItem() == TileItem.ICRONWALL)
+                    .map(tile -> (Sprite) tile).collect(Collectors.toList());
+
+            List<? extends Sprite> groupCollide = Sprite.groupCollide(this, tiles);
+            if (groupCollide.size() > 0) {
+                decreaseDelta();
+            }
+            if (groupCollide.size() == 1) {
+                // 让角色在一定位置时能自动转弯
+                Sprite tile = groupCollide.get(0);
+                Position playerCenter = getCenter();
+                Position tileCenter = tile.getCenter();
+                int distanceX = Math.abs(playerCenter.getX() - tileCenter.getX());
+                int distanceY = Math.abs(playerCenter.getY() - tileCenter.getY());
+                if ((direction == Direction.UP || direction == Direction.DOWN) && distanceX >= width / 2) {
+                    switch (getQuardrant(tile)) {
+                    case 1:
+                    case 4:
+                        setDx(-1);
+                        setDy(0);
+                        updatePosition();
+                        break;
+                    case 2:
+                    case 3:
+                        setDx(1);
+                        setDy(0);
+                        updatePosition();
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                if ((direction == Direction.LEFT || direction == Direction.RIGHT) && distanceY >= height / 2) {
+                    switch (getQuardrant(tile)) {
+                    case 1:
+                    case 2:
+                        setDx(0);
+                        setDy(-1);
+                        updatePosition();
+                        break;
+                    case 3:
+                    case 4:
+                        setDx(0);
+                        setDy(1);
+                        updatePosition();
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+            }
+
         }
+
     }
 
     public void keyPressed(KeyEvent e) {
@@ -91,7 +144,7 @@ public class Player extends Sprite {
     }
 
     private void dropBombEvent() {
-        var center = getCenter();
+        Position center = getCenter();
         bombGroup.dropBomb(center.getX(), center.getY());
     }
 
@@ -112,6 +165,13 @@ public class Player extends Sprite {
             moving = false;
             break;
         }
+    }
+
+    public void enhance(Tile item) {
+        System.out.println("get " + item.getItem().toString());
+
+        // clear the item
+        item.setValue(0);
     }
 
 }

@@ -24,18 +24,18 @@ public class Bomb extends Sprite {
 
     }
 
-    public void startTimer(Background background, int palyerX, int playerY) {
-        int currentCol = background.getColumn(palyerX);
-        int currentRow = background.getRow(playerY);
-        int index = background.getIndex(currentCol, currentRow);
-        position.set(background.getX(index), background.getY(index));
+    public void startTimer(TileGroup tilegroup, int palyerX, int playerY) {
+        int currentCol = tilegroup.getColumn(palyerX);
+        int currentRow = tilegroup.getRow(playerY);
+        int index = tilegroup.getIndex(currentCol, currentRow);
+        position.set(tilegroup.getX(index), tilegroup.getY(index));
         visible = true;
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 visible = false;
-                fireBombGroup.addFires(background, index);
+                fireBombGroup.addFires(tilegroup, index);
             }
         }, 3000);
     }

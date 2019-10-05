@@ -2,6 +2,8 @@ package jojo;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -15,14 +17,14 @@ public class FireBombGroup {
         fireBombs = new ArrayList<>();
     }
 
-    public void addFires(Background background, int index) {
-        var tiles = background.getTiles();
+    public void addFires(TileGroup tilegroup, int index) {
+        List<Tile> tiles = tilegroup.getTiles();
 
-        var surrounds = new HashMap<Direction, Tile>() {
+        Set<Map.Entry<Direction, Tile>> surrounds = new HashMap<Direction, Tile>() {
             private static final long serialVersionUID = 1L;
             {
-                put(Direction.UP, tiles.get(index - background.getColumn()));
-                put(Direction.DOWN, tiles.get(index + background.getColumn()));
+                put(Direction.UP, tiles.get(index - tilegroup.getColumn()));
+                put(Direction.DOWN, tiles.get(index + tilegroup.getColumn()));
                 put(Direction.LEFT, tiles.get(index - 1));
                 put(Direction.RIGHT, tiles.get(index + 1));
                 put(Direction.CENTER, tiles.get(index));
@@ -30,18 +32,18 @@ public class FireBombGroup {
         }.entrySet();
 
         fireBombs = surrounds.stream().filter(entry -> entry.getValue().getItem() == TileItem.ROAD).map(entry -> {
-            var tile = entry.getValue();
-            var direction = entry.getKey();
+            Tile tile = entry.getValue();
+            Direction direction = entry.getKey();
             return new FireBomb(tile.getPosition().getX(), tile.getPosition().getY(), direction);
         }).collect(Collectors.toList());
 
         surrounds.stream().filter(entry -> entry.getValue().getValue() >= TileItem.WALL.getValue())
                 .map(entry -> entry.getValue()).forEach(wall -> {
                     if (wall.getItem() == TileItem.WALL) {
-                        var fireWall = new FireWall(wall.getPosition().getX(), wall.getPosition().getY());
-                        wall.setFireWall(fireWall);
+                        FireWall fireWall = new FireWall(wall.getPosition().getX(), wall.getPosition().getY());
+                        tilegroup.getFireWalls().add(fireWall);
+                        wall.removeItem(TileItem.WALL);
                     }
-                    wall.removeItem(TileItem.WALL);
                 });
 
     }
@@ -50,5 +52,9 @@ public class FireBombGroup {
         fireBombs.stream().filter(fire -> fire.isVisible()).forEach(fire -> {
             fire.update();
         });
+    }
+
+    public List<FireBomb> getVisibleFireBombs() {
+        return fireBombs.stream().filter(fireBomb -> fireBomb.isVisible()).collect(Collectors.toList());
     }
 }

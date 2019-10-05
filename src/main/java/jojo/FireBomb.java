@@ -5,6 +5,8 @@ import java.awt.Image;
 public class FireBomb extends Sprite {
 
     public FireBomb(int x, int y, Direction direction) {
+        width = ImageLoader.getBombWidth();
+        height = ImageLoader.getBombHeight();
         position.set(x, y);
         this.direction = direction;
     }

@@ -5,10 +5,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
-public class Background {
+public class TileGroup {
     @Getter
     private int column;
     @Getter
@@ -16,14 +17,17 @@ public class Background {
     @Getter
     private List<Tile> tiles;
 
+    @Getter
+    private List<FireWall> fireWalls;
+
     private Random random;
 
-    public Background() {
+    public TileGroup() {
         column = 25;
         row = 15;
         random = new Random(new Date().getTime());
         tiles = new ArrayList<>(column * row);
-
+        fireWalls = new ArrayList<>();
         InitMap();
     }
 
@@ -40,7 +44,13 @@ public class Background {
     }
 
     public void update() {
-        tiles.stream().filter(tile -> tile.getFireWall() != null).forEach(tile -> tile.getFireWall().update());
+        fireWalls.removeIf(fireWall -> !fireWall.isVisible());
+
+        fireWalls.forEach(fireWall -> fireWall.update());
+    }
+
+    public List<FireWall> getVisibleFireWalls() {
+        return fireWalls.stream().filter(fireWall -> fireWall.isVisible()).collect(Collectors.toList());
     }
 
     public int getColumn(int x) {
@@ -52,8 +62,8 @@ public class Background {
     }
 
     public HashMap<Direction, Tile> getSurrounds(Sprite sprite) {
-        int currentCol = getColumn(sprite.getPosition().getX());
-        int currentRow = getRow(sprite.getPosition().getY());
+        int currentCol = getColumn(sprite.getCenter().getX());
+        int currentRow = getRow(sprite.getCenter().getY());
         int index = column * currentRow + currentCol;
 
         return new HashMap<Direction, Tile>(8) {
