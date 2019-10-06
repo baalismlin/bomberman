@@ -40,3 +40,6 @@ gradle.properties
 .apt_generated_tests
 .sts4-cache
 .settings
+.project
+.classpath
+.factorypath
