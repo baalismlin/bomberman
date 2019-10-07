@@ -10,7 +10,7 @@ public class Game extends JFrame {
         add(new GamePanel());
         setResizable(false);
         pack();
-        setSize(400, 300);
+        setSize(800, 500);
         setTitle("Bomber Man");
         setLocationRelativeTo(null);
         setAutoRequestFocus(true);

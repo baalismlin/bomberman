@@ -3,8 +3,7 @@ package jojo;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
-// import java.awt.image.BufferedImage;
-// import java.awt.geom.AffineTransform;
+import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -19,9 +18,9 @@ public class GamePanel extends JPanel {
     private Player player;
     private EnemyGroup enemyGroup;
     private TileGroup tileGroup;
+    private AffineTransform at;
 
     public GamePanel() {
-
         tileGroup = new TileGroup();
         player = new Player(tileGroup);
         enemyGroup = new EnemyGroup(tileGroup, player.getBombGroup());
@@ -38,6 +37,8 @@ public class GamePanel extends JPanel {
             }
         }, 0, 1000 / FPS);
 
+        at = new AffineTransform();
+        at.scale(2, 2);
     }
 
     @Override
@@ -45,6 +46,8 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
+        g2d.transform(at);
+
         // draw tileGroup
         drawImage(g2d, tileGroup.getTiles());
 
@@ -62,11 +65,6 @@ public class GamePanel extends JPanel {
 
         // draw player
         drawImage(g2d, Arrays.asList(player));
-
-        // BufferedImage image = createImage();
-        // BufferedImage destImage = scaleImage(image, 800, 600);
-
-        // g2d.drawImage(destImage, 0, 0, this);
 
         Toolkit.getDefaultToolkit().sync();
     }
@@ -136,30 +134,8 @@ public class GamePanel extends JPanel {
     private void drawImage(Graphics2D g2d, List<? extends Sprite> sprites) {
         sprites.forEach(sprite -> {
             if (sprite.isVisible()) {
-                g2d.drawImage(sprite.getImage(), sprite.position.getX(), sprite.position.getY(), this);
+                g2d.drawImage(sprite.getImage(), sprite.position.getX(), sprite.position.getY(), null);
             }
         });
     }
-
-    // private BufferedImage createImage() {
-    // int w = getWidth();
-    // int h = getHeight();
-    // BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-    // Graphics2D g = bi.createGraphics();
-    // print(g);
-    // g.dispose();
-    // return bi;
-    // }
-
-    // private BufferedImage scaleImage(BufferedImage src, int width, int height) {
-    // BufferedImage bdest = new BufferedImage(width, height,
-    // BufferedImage.TYPE_BYTE_GRAY);
-    // Graphics2D g = bdest.createGraphics();
-    // AffineTransform at = AffineTransform.getScaleInstance((double)
-    // bdest.getWidth() / src.getWidth(),
-    // (double) bdest.getHeight() / src.getHeight());
-    // g.drawRenderedImage(src, at);
-    // g.dispose();
-    // return bdest;
-    // }
 }
